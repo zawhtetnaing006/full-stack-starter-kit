@@ -39,6 +39,25 @@ services:
       timeout: 5s
       retries: 5
 
+  # postgre-db:
+  #   image: postgres:17
+  #   restart: always
+  #   environment:
+  #     POSTGRES_USER: user
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DB: my-db
+  #   ports:
+  #     - 5432:5432
+  #   volumes:
+  #     - my-db-data:/var/lib/postgresql/data
+  #   networks:
+  #     - default
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U user -d my-db"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
   adminer:
     image: adminer
     restart: always
