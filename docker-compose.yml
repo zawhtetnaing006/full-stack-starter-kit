@@ -1,0 +1,82 @@
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    command: >
+      sh -c "npx prisma generate && 
+             npx prisma migrate deploy && 
+             npm run start:dev"
+    ports:
+      - 3000:3000
+    env_file:
+      - ./backend/.env.local
+    volumes:
+      - ./logs/backend:/app/logs
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - default
+
+  db:
+    image: mysql:9.1.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: my-db
+    ports:
+      - 3306:3306
+    volumes:
+      - my-db-data:/var/lib/mysql
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ppassword"]
+      interval: 6s
+      timeout: 5s
+      retries: 5
+
+  # postgre-db:
+  #   image: postgres:17
+  #   restart: always
+  #   environment:
+  #     POSTGRES_USER: user
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DB: my-db
+  #   ports:
+  #     - 5432:5432
+  #   volumes:
+  #     - my-db-data:/var/lib/postgresql/data
+  #   networks:
+  #     - default
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U user -d my-db"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - default
+
+  mailhog:
+    image: mailhog/mailhog
+    restart: always
+    ports:
+      - 1025:1025 # SMTP server
+      - 8025:8025 # Web UI
+    networks:
+      - default
+
+networks:
+  default:
+
+volumes:
+  my-db-data:
